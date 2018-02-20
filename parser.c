@@ -2,7 +2,7 @@
 
 int main(){
 	// printf("yo\n");
-	nonTerminalList * ntl = readGrammar("grammer.txt");
+	nonTerminalList * ntl = readGrammar("grammar.txt");
 	// printGrammar(ntl);
 	computeFirstSet(ntl);
 	printFirstSet(ntl);
