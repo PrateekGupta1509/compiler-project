@@ -97,7 +97,6 @@ char viewNextChar(){
 void removeComments(char *testcaseFile) {
 	FILE *infp = fopen(testcaseFile, "r");
 	if(infp == NULL){
-		printf("yo\n");
 		return;
 	}
 	char c;

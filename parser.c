@@ -707,7 +707,8 @@ void generateParseTree(parseTree * ptHead, nonTerminalList * ntlHead, char * inF
 
 	tokenInfo *ti = NULL;
 	ti = getNextToken(infp);
-	while(strcmp(ti->token,"COMMENT") == 0 || strcmp(ti->token,"Lexical error")){
+
+	while(strcmp(ti->token,"COMMENT") == 0 || strcmp(ti->token,"Lexical error") == 0){
 		if((ti->token)[0] == 'L'){
 			if((ti->value)[0] == 'L'){
 				printf("line no.:%d %s: %s\n",ti->lineno, ti->token, "Identifier is longer than the prescribed length");
@@ -732,6 +733,7 @@ void generateParseTree(parseTree * ptHead, nonTerminalList * ntlHead, char * inF
 	setNode * sn = NULL; 
 	setNode * en = NULL;
 
+	// printf("yo\n");
 	while( strcmp(psHead->value,"EOF")  != 0){
 		i = getNTLIndex(psHead->value);
 		j = getTokenIndex(ti->token);
@@ -773,16 +775,21 @@ void generateParseTree(parseTree * ptHead, nonTerminalList * ntlHead, char * inF
 				}
 				ti = getNextToken(infp);
 			};
-			if(strcmp(ti->token,"EOF") == 0){
-				return;
-			}
 		}
 		else if(getTokenIndex(psHead->value) != -1){
-			printf("ERROR\n");
 			errorFlag = 1;
-			break;
+			printf("line no.:%llu Syntax error: The token %s for lexeme %s does not match at line %llu. The expected token here is %s\n", ti->lineno, ti->token, ti->value, psHead->value);
+			while(isupper((psHead->value)[0])){
+				psHead = psPop(psHead);
+				if(psHead == NULL){
+					return;
+				}
+			}
+
+			// break;
 		}
 		else if(i != -1 && j != -1 && pt[i][j].ruleHead == NULL){
+			errorFlag = 1;
 			printf("line no.:%llu Syntax error: The token %s for lexeme %s does not match at line %llu. The expected token here is", ti->lineno, ti->token, ti->value);
 			ntl = getNonTerminal(ntlHead, psHead->value);
 			rl = ntl->ruleListHead;
@@ -805,7 +812,7 @@ void generateParseTree(parseTree * ptHead, nonTerminalList * ntlHead, char * inF
 			}
 			printf("\n");
 
-			ti = getNextToken(infp);
+			// ti = getNextToken(infp);
 			while(1){
 				while(strcmp(ti->token,"COMMENT") == 0 || strcmp(ti->token,"Lexical error") == 0){
 					if((ti->token)[0] == 'L'){
@@ -846,8 +853,7 @@ void generateParseTree(parseTree * ptHead, nonTerminalList * ntlHead, char * inF
 				ti = getNextToken(infp);
 			}
 
-			errorFlag = 1;
-			break;
+			// break;
 		}
 		else if(i != -1 && j != -1 && pt[i][j].ruleHead != NULL){
 			// printf("get rule:%s %s\n",psHead->value, ti->token);
@@ -908,29 +914,37 @@ void printStack(parseStack * psh){
 
 void printParseTree(FILE *fp, parseTree * pt){
 	if(pt != NULL){
-		char isLeaf[4] = "yes";
+		char isLeaf[4];
 		if(pt->child != NULL){
 			strcpy(isLeaf,"no");
 			printParseTree(fp,pt->child);
 		}
+		else{
+			strcpy(isLeaf,"yes");
+		}
+		char buff[30];
+		
+		sprintf(buff,"<%s>",pt->parent->value);
+		
 
 		//printDetails
 		if(pt->ti != NULL){
 			if(strcmp(pt->ti->token,"RNUM") == 0 || strcmp(pt->ti->token,"NUM") == 0){
-				fprintf(fp,"%s %d %s %s %s %s %s\n", pt->ti->value, pt->ti->lineno, pt->ti->token, pt->ti->value, pt->parent->value, isLeaf, pt->value);
+				fprintf(fp,"%-20s  %-10d  %-20s  %-20s  %-25s    %-10s   %s\n", pt->ti->value, pt->ti->lineno, pt->ti->token, pt->ti->value, buff, isLeaf, pt->value);
 			}
 			else{
-				fprintf(fp,"%s %d %s %s %s %s %s\n", pt->ti->value, pt->ti->lineno, pt->ti->token, "----", pt->parent->value, isLeaf, pt->value);
+				fprintf(fp,"%-20s  %-10d  %-20s  %-20s  %-25s    %-10s   %s\n", pt->ti->value, pt->ti->lineno, pt->ti->token, "----", buff, isLeaf, pt->value);
 			}
 		}
 		else{
 			if(strcmp(pt->value, "EPSILON")==0){
-				fprintf(fp,"%s %s %s %s %s %s %s\n", "----","----", pt->value, "----", pt->parent->value, isLeaf, pt->value );
+				fprintf(fp,"%-20s  %-10s  %-20s  %-20s  %-25s    %-10s   %s\n", "----","---", pt->value, "----", buff, isLeaf, pt->value );
 			}
 			else{
-				fprintf(fp,"%s %s %s %s %s %s %s\n", "----", "----", "----","----", pt->parent->value, isLeaf, pt->value);
+				fprintf(fp,"%-20s  %-10s  %-20s  %-20s  %-25s    %-10s   <%s>\n", "----", "----", "----","----", buff, isLeaf, pt->value);
 			}
 		}
+		// fprintf(fp,"%20s %10s %30s\n",pt->parent->value,isLeaf,pt->value);
 
 		if(pt->child != NULL){
 			parseTree *tmp = pt->child->sibling; 
