@@ -12,7 +12,6 @@
 <stmt> ===> <funCallStmt> SEMICOLON #
 <functionDef> ===> FUNCTION SQO <parameter_list> SQC ASSIGNOP FUNID SQO <parameter_list> SQC <stmtsAndFunctionDefs> END SEMICOLON #
 <parameter_list> ===> <type> ID <remainingList> #
-<parameter_list> ===> EPSILON #
 <type> ===> INT #
 <type> ===> REAL #
 <type> ===> STRING #

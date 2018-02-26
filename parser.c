@@ -711,13 +711,13 @@ void generateParseTree(parseTree * ptHead, nonTerminalList * ntlHead, char * inF
 	while(strcmp(ti->token,"COMMENT") == 0 || strcmp(ti->token,"Lexical error") == 0){
 		if((ti->token)[0] == 'L'){
 			if((ti->value)[0] == 'L'){
-				printf("line no.:%d %s: %s\n",ti->lineno, ti->token, "Identifier is longer than the prescribed length");
+				printf("%llu: %s : %s\n",ti->lineno, ti->token, "Identifier is longer than the prescribed length");
 			}
 			else if((ti->token)[1] == 'P'){
-				printf("line no.:%d %s: Unknown Pattern %s\n",ti->lineno, ti->token, ((ti->value)+3));
+				printf("%llu: %s : Unknown Pattern %s\n",ti->lineno, ti->token, ((ti->value)+3));
 			}
 			else{
-				printf("line no.:%d %s: %s\n",ti->lineno, ti->token, ti->value);
+				printf("%llu: %s : %s\n",ti->lineno, ti->token, ti->value);
 			}
 		}
 		ti = getNextToken(infp);
@@ -758,19 +758,20 @@ void generateParseTree(parseTree * ptHead, nonTerminalList * ntlHead, char * inF
 			while(cpt != NULL && cpt->child != NULL){
 				cpt = cpt->child;
 			}
-			// printf("yo----\n");
 			psHead = psPop(psHead);
 			ti = getNextToken(infp);
 			while(strcmp(ti->token,"COMMENT") == 0 || strcmp(ti->token,"Lexical error") == 0){
+				// printf("ERROR1\n");
+
 				if((ti->token)[0] == 'L'){
 					if((ti->value)[0] == 'L'){
-						printf("line no.:%d %s: %s\n",ti->lineno, ti->token, "Identifier is longer than the prescribed length");
+						printf("%llu: %s : %s\n",ti->lineno, ti->token, "Identifier is longer than the prescribed length");
 					}
 					else if((ti->token)[1] == 'P'){
-						printf("line no.:%d %s: Unknown Pattern %s\n",ti->lineno, ti->token, ((ti->value)+3));
+						printf("%llu: %s : Unknown Pattern %s\n",ti->lineno, ti->token, ((ti->value)+3));
 					}
 					else{
-						printf("line no.:%d %s: %s\n",ti->lineno, ti->token, ti->value);
+						printf("%llu: %s : %s\n",ti->lineno, ti->token, ti->value);
 					}
 				}
 				ti = getNextToken(infp);
@@ -778,52 +779,43 @@ void generateParseTree(parseTree * ptHead, nonTerminalList * ntlHead, char * inF
 		}
 		else if(getTokenIndex(psHead->value) != -1){
 			errorFlag = 1;
-			printf("line no.:%llu Syntax error: The token %s for lexeme %s does not match at line %llu. The expected token here is %s\n", ti->lineno, ti->token, ti->value, psHead->value);
+			printf("%llu: Syntax error : The token %s for lexeme %s does not match at line %llu. The expected token here is %s\n", ti->lineno, ti->token, ti->value,ti->lineno, psHead->value);
 			while(isupper((psHead->value)[0])){
 				psHead = psPop(psHead);
 				if(psHead == NULL){
 					return;
 				}
 			}
-
-			// break;
-		}
-		else if(i != -1 && j != -1 && pt[i][j].ruleHead == NULL){
-			errorFlag = 1;
-			printf("line no.:%llu Syntax error: The token %s for lexeme %s does not match at line %llu. The expected token here is", ti->lineno, ti->token, ti->value);
-			ntl = getNonTerminal(ntlHead, psHead->value);
-			rl = ntl->ruleListHead;
-			while(rl != NULL) {
-				sn = rl->firstHead;
-				while(sn != NULL){
-					if(strcmp(sn->value,"EPSILON") == 0){
-						en = ntl->followHead;
-						while(en!= NULL){
-							printf(" %s",en->value);
-							en = en->next;
-						}
-					}
-					else{
-						printf(" %s",en->value);
-					}
-					sn = sn->next;
-				}
-				rl = rl->next;
-			}
-			printf("\n");
-
-			// ti = getNextToken(infp);
 			while(1){
+				if (cpt->sibling == NULL){
+					if(cpt->parent == NULL){
+						return;
+					}
+					cpt = cpt->parent;
+				}
+				else{
+					cpt = cpt->sibling;
+					if(islower((cpt->value)[0])){
+						break;
+					}
+				}
+			}
+
+			ntl = getNonTerminal(ntlHead, psHead->value);
+			int randomFlag = 0;
+
+			while(1){
+				// printf("ERROR2 %s\n", ti->token);
 				while(strcmp(ti->token,"COMMENT") == 0 || strcmp(ti->token,"Lexical error") == 0){
 					if((ti->token)[0] == 'L'){
 						if((ti->value)[0] == 'L'){
-							printf("line no.:%d %s: %s\n",ti->lineno, ti->token, "Identifier is longer than the prescribed length");
+							printf("%llu: %s : %s\n",ti->lineno, ti->token, "Identifier is longer than the prescribed length");
 						}
 						else if((ti->token)[1] == 'P'){
-							printf("line no.:%d %s: Unknown Pattern %s\n",ti->lineno, ti->token, ((ti->value)+3));
+							printf("%llu: %s : Unknown Pattern %s\n",ti->lineno, ti->token, ((ti->value)+3));
 						}
 						else{
-							printf("line no.:%d %s: %s\n",ti->lineno, ti->token, ti->value);
+							printf("%llu: %s : %s\n",ti->lineno, ti->token, ti->value);
 						}
 					}
 					ti = getNextToken(infp);
@@ -833,10 +825,14 @@ void generateParseTree(parseTree * ptHead, nonTerminalList * ntlHead, char * inF
 				}
 
 				en = ntl->followHead;
+				// printSet(en);
+				// printf("\n");
 				while(en!=NULL){
 					if(strcmp(en->value, ti->token) == 0){
-						//fix cpt
+						//fix stack
+						randomFlag = 0;
 						psHead = psPop(psHead);
+						//fix cpt
 						while( cpt->sibling == NULL ){
 							if(cpt->parent != NULL){
 								cpt = cpt->parent;
@@ -850,7 +846,92 @@ void generateParseTree(parseTree * ptHead, nonTerminalList * ntlHead, char * inF
 					}
 					en = en->next;
 				}
-				ti = getNextToken(infp);
+				if(randomFlag == 0){
+					ti = getNextToken(infp);
+				}
+				else {
+					randomFlag = 1;
+					break;
+				}
+			}
+
+			// break;
+		}
+		else if(i != -1 && j != -1 && pt[i][j].ruleHead == NULL){
+			errorFlag = 1;
+			printf("%llu: Syntax error : The token %s for lexeme %s does not match at line %llu. The expected token here is", ti->lineno, ti->token, ti->value, ti->lineno);
+			ntl = getNonTerminal(ntlHead, psHead->value);
+			// printf("*************%s\n",psHead->value );
+			rl = ntl->ruleListHead;
+			while(rl != NULL) {
+				sn = rl->firstHead;
+				while(sn != NULL){
+					if(strcmp(sn->value,"EPSILON") == 0){
+						en = ntl->followHead;
+						while(en != NULL){
+							printf(" %s",en->value);
+							en = en->next;
+						}
+					}
+					else{
+						printf(" %s",sn->value);
+					}
+					sn = sn->next;
+				}
+				rl = rl->next;
+			}
+			printf("\n");
+
+			// ti = getNextToken(infp);
+			int randomFlag = 0;
+			while(1){
+				while(strcmp(ti->token,"COMMENT") == 0 || strcmp(ti->token,"Lexical error") == 0){
+					// printf("ERROR3\n");
+					if((ti->token)[0] == 'L'){
+						if((ti->value)[0] == 'L'){
+							printf("%llu: %s : %s\n",ti->lineno, ti->token, "Identifier is longer than the prescribed length");
+						}
+						else if((ti->token)[1] == 'P'){
+							printf("%llu: %s : Unknown Pattern %s\n",ti->lineno, ti->token, ((ti->value)+3));
+						}
+						else{
+							printf("%llu: %s : %s\n",ti->lineno, ti->token, ti->value);
+						}
+					}
+					ti = getNextToken(infp);
+				};
+				if(strcmp(ti->token,"EOF") == 0){
+					return;
+				}
+
+				en = ntl->followHead;
+				while(en!=NULL){
+					if(strcmp(en->value, ti->token) == 0){
+						//fix stack
+						randomFlag = 1;
+						psHead = psPop(psHead);
+						//fix cpt
+						while( cpt->sibling == NULL ){
+							if(cpt->parent != NULL){
+								cpt = cpt->parent;
+							}
+							else{
+								return;
+							}
+						}
+						cpt = cpt->sibling;
+						break;
+					}
+					en = en->next;
+				}
+				if(randomFlag == 0){
+					ti = getNextToken(infp);
+					// printf("TOKEN:%s\n",ti->token );
+				}
+				else{
+					randomFlag =1;
+					break;
+				}
 			}
 
 			// break;

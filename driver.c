@@ -65,7 +65,12 @@ int main(int argc, char ** argv){
 				ntlHead = readGrammar("grammar.txt");
 				computeFirstSet(ntlHead);
 				readFollowSet("follow.txt",ntlHead);
+
+				// printFirstSet(ntlHead);
+				// printFollowSet(ntlHead);
+				
 				generateParseTable(ntlHead);
+
 				ptHead = initParseTree(ptHead);
 				generateParseTree(ptHead, ntlHead, argv[1]);
 				outfp = fopen(argv[2],"w");
