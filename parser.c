@@ -838,7 +838,9 @@ void printParseTree(parseTree * pt){
 			if(strcmp(pt->value, "EPSILON")==0){
 				printf("%s %s %s %s %s %s %s\n", "----","----", pt->value, "----", pt->parent->value, isLeaf, pt->value );
 			}
-			printf("%s %s %s %s %s %s %s\n", "----", "----", pt->value,"----", pt->parent->value, isLeaf, pt->value);
+			else{
+				printf("%s %s %s %s %s %s %s\n", "----", "----", "----","----", pt->parent->value, isLeaf, pt->value);
+			}
 			// printf("%s \n",pt->value);
 		}
 		if(pt->child != NULL){
