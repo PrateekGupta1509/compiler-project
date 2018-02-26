@@ -1,30 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+// PRATEEK GUPTA
+// 2014B4A70767P
 
-typedef struct setNode {
-	char value[25];
-	struct setNode *next;
-}setNode;
-
-typedef struct ruleNode{
-	int isTerminal;
-	char value[25];
-	struct ruleNode *next;
-}ruleNode;
-
-typedef struct ruleList{
-	ruleNode * ruleHead;
-	setNode * firstHead;
-	setNode * followHead;
-	struct ruleList * next;
-}ruleList;
-
-typedef struct nonTerminalList{
-	ruleList * ruleListHead;
-	char value[25];
-	struct nonTerminalList *next;
-}nonTerminalList;
+#include "lexer.h"
+#include "parserDef.h"
 
 nonTerminalList* readGrammar (char * fileName);
 nonTerminalList * createNTNode(char * nonTerminal);
@@ -33,8 +11,40 @@ ruleNode * createRuleNode(char * value);
 char * stripNonTerminal(char *value);
 void printGrammar(nonTerminalList *ntlHead);
 
+nonTerminalList * getNonTerminal(nonTerminalList *ntlHead, char * value);
+
 void computeFirstSet(nonTerminalList *ntlHead);
 setNode * createSetNode(char *value);
-ruleList * getNonTerminal(nonTerminalList *ntlHead, char * value);
 setNode * recurseFirstSet(nonTerminalList* ntlHead, ruleNode * ruleHead);
 void printFirstSet(nonTerminalList * ntlHead);
+
+
+void readFollowSet(char *fileName, nonTerminalList * ntlHead);
+
+// void computeFollowSet(nonTerminalList * ntlHead);
+// void appendFollowSet(nonTerminalList * ntl, setNode * followSet);
+// void recurseFollowSet(nonTerminalList *ntlHead, nonTerminalList *fntl, nonTerminalList * lhsntl, ruleNode * nrn);
+
+void printFollowSet(nonTerminalList * ntlHead);
+void printSet( setNode * sn);
+
+
+int getTokenIndex(char * tokenValue);
+int getNTLIndex(char * ntlValue);
+
+void initParseTable();
+void generateParseTable(nonTerminalList * ntlHead);
+void printParseTable();
+
+parseStack * createStackNode(char * value);
+parseStack * psPush(parseStack * psh ,char * value);
+parseStack * psPop(parseStack * psh);
+parseStack * initStack(parseStack *psHead);
+void printStack(parseStack * psh);
+
+parseTree * initParseTree();
+parseTree* createPTNode(char *value, parseTree * parent);
+
+
+void generateParseTree(parseTree * ptHead, char * inFileName);
+void printParseTree(parseTree * pt);

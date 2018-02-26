@@ -63,7 +63,7 @@
 <constrainedVars> ===> ID #
 <constrainedVars> ===> NUM #
 <constrainedVars> ===> RNUM #
-<var> ===> ID #
+<var> ===> ID <matrixElement> #
 <var> ===> NUM #
 <var> ===> RNUM #
 <var> ===> STR #
@@ -75,6 +75,8 @@
 <row> ===> NUM <remainingColElements> #
 <remainingColElements> ===> COMMA NUM <remainingColElements> #
 <remainingColElements> ===> EPSILON #
+<matrixElement> ===> SQO NUM COMMA NUM SQC #
+<matrixElement> ===> EPSILON #
 <logicalOp> ===> AND #
 <logicalOp> ===> OR #
 <relationalOp> ===> LT #

@@ -1,0 +1,44 @@
+<mainFunction> ===> EOF #
+<stmtsAndFunctionDefs> ===> END #
+<snfdFactors> ===> END #
+<stmtOrFunctionDef> ===> INT REAL STRING MATRIX ID SQO IF READ PRINT FUNID FUNCTION END #
+<stmt> ===> INT REAL STRING MATRIX ID SQO IF READ PRINT FUNID FUNCTION END ELSE ENDIF #
+<functionDef> ===> INT REAL STRING MATRIX ID SQO IF READ PRINT FUNID FUNCTION END #
+<parameter_list> ===> SQC #
+<type> ===> ID #
+<remainingList> ===> SQC #
+<declarationStmt> ===> INT REAL STRING MATRIX ID SQO IF READ PRINT FUNID FUNCTION END ELSE ENDIF #
+<var_list> ===> SEMICOLON SQC #
+<more_ids> ===> SEMICOLON SQC #
+<assignmentStmt_type1> ===> INT REAL STRING MATRIX ID SQO IF READ PRINT FUNID FUNCTION END ELSE ENDIF #
+<assignmentStmt_type2> ===> INT REAL STRING MATRIX ID SQO IF READ PRINT FUNID FUNCTION END ELSE ENDIF #
+<leftHandSide_singleVar> ===> ASSIGNOP #
+<leftHandSide_listVar> ===> ASSIGNOP #
+<rightHandSide_type1> ===> SEMICOLON #
+<rightHandSide_type2> ===> SEMICOLON #
+<sizeExpression> ===> SEMICOLON #
+<ifStmt> ===> INT REAL STRING MATRIX ID SQO IF READ PRINT FUNID FUNCTION END ELSE ENDIF #
+<elseStmts> ===> INT REAL STRING MATRIX ID SQO IF READ PRINT FUNID FUNCTION END ELSE ENDIF #
+<otherStmts> ===> ELSE ENDIF #
+<ioStmt> ===> INT REAL STRING MATRIX ID SQO IF READ PRINT FUNID FUNCTION END ELSE ENDIF #
+<funCallStmt> ===> SEMICOLON #
+<inputParameterList> ===> CL #
+<listVar> ===> CL #
+<arithmeticExpression> ===> SEMICOLON CL #
+<arithmeticFactor> ===> SEMICOLON CL #
+<arithmeticTerm> ===> PLUS MINUS SEMICOLON CL #
+<arithmeticTermFactor> ===> PLUS MINUS SEMICOLON CL #
+<factor> ===> MUL DIV PLUS MINUS SEMICOLON CL #
+<operator_lowPrecedence> ===> OP ID NUM RNUM STR SQO #
+<operator_highPrecedence> ===> OP ID NUM RNUM STR SQO #
+<booleanExpression> ===> CL #
+<constrainedVars> ===> LT LE EQ GT GE NE CL #
+<var> ===> COMMA MUL DIV PLUS MINUS SEMICOLON CL #
+<matrix> ===> COMMA MUL DIV PLUS MINUS SEMICOLON CL #
+<rows> ===> SQC #
+<rowsFactor> ===> SQC #
+<row> ===> SEMICOLON SQC #
+<remainingColElements> ===> SEMICOLON SQC #
+<matrixElement> ===> COMMA MUL DIV PLUS MINUS SEMICOLON CL #
+<logicalOp> ===> OP #
+<relationalOp> ===> ID NUM RNUM #

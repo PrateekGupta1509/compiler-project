@@ -1,0 +1,5 @@
+_main[     ]
+	string str1, str2;
+
+end
+
