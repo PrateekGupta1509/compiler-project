@@ -829,15 +829,22 @@ void generateParseTree(parseTree * ptHead, nonTerminalList * ntlHead, char * inF
 				while(en!=NULL){
 					if(strcmp(en->value, ti->token) == 0){
 						//fix cpt
-
+						psHead = psPop(psHead);
+						while( cpt->sibling == NULL ){
+							if(cpt->parent != NULL){
+								cpt = cpt->parent;
+							}
+							else{
+								return;
+							}
+						}
+						cpt = cpt->sibling;
 						break;
 					}
 					en = en->next;
 				}
 				ti = getNextToken(infp);
 			}
-
-
 
 			errorFlag = 1;
 			break;
