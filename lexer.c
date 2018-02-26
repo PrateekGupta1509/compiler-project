@@ -13,22 +13,6 @@ char sBuffer[MAX_BUFFER_SIZE+1];
 int currBufferIndex = -1;
 int lineno = 0;
 
-
-
-// int main( int charc, char **charv){
-	// char *fileName = charv[1];
-	// FILE *fp = fopen(fileName, "r");
-	// removeComments(charv[1]);
-	// tokenInfo *ti;
-	// ti = getNextToken(fp);
-	// while( strcmp(ti->token,"EOF")  != 0){
-	// 	readTokenInfo(ti);
-	// 	ti = getNextToken(fp);
-	// }
-	// return 0;
-// }
-
-
 tokenInfo* setTokenInfo(char *token, char* value, int lineno) {
 	tokenInfo *ti = (tokenInfo *) malloc (sizeof(tokenInfo));
 	if(ti == NULL)
@@ -162,7 +146,7 @@ tokenInfo * keywordMap(char* value, int lineno){
 tokenInfo * getNextToken(FILE *fp) {
 	char ch;
 	int i;
-	char buff[25];
+	char buff[25], tbuff[50];
 	if(fp == NULL)
 		return NULL;
 
@@ -234,7 +218,10 @@ tokenInfo * getNextToken(FILE *fp) {
 					while(i<21){
 						if(!isalpha(ch) && ch != ' '){
 							--currBufferIndex;
-							return setTokenInfo("INVALID","INVALID",lineno);
+							buff[i++] = ch;
+							buff[i] = '\0';
+							sprintf(tbuff,"UP %s",buff);
+							return setTokenInfo("Lexical error",tbuff,lineno);
 						}
 						buff[i++] = ch;
 						ch = getNextCharacter(fp);
@@ -246,28 +233,34 @@ tokenInfo * getNextToken(FILE *fp) {
 					}
 					if(i >= 21){
 						while(isalpha(ch) || ch == ' '){
+							buff[i++] = ch;
 							ch = getNextCharacter(fp);
 						}
 						if(ch == '"'){
-							return setTokenInfo("INVALID","INVALID",lineno);
+							return setTokenInfo("Lexical error","Length exceeded",lineno);
 						}
 						--currBufferIndex;
-						return setTokenInfo("INVALID","INVALID",lineno);
+						sprintf(tbuff,"UP %s",buff);
+						return setTokenInfo("Lexical error",tbuff,lineno);
 					}
 					--currBufferIndex;
 					return setTokenInfo("INVALID","INVALID",lineno);
 
 		case '_':
 					i = 0;
+					tbuff[i] = ch;
 					buff[i++] = ch; 
 					ch = getNextCharacter(fp);
 					if(isalpha(ch)){
+						tbuff[i] = ch;
 						buff[i++] = ch;
 						ch = getNextCharacter(fp);
 					}
 					else{
 						--currBufferIndex;
-						return setTokenInfo("INVALID","INVALID",lineno);
+						tbuff[i] = '\0';
+						sprintf(buff,"UP %c",tbuff);
+						return setTokenInfo("Lexical error",buff,lineno);
 					}
 
 					while(i<21){
@@ -288,7 +281,7 @@ tokenInfo * getNextToken(FILE *fp) {
 							ch = getNextCharacter(fp);
 						}
 						--currBufferIndex;
-						return setTokenInfo("INVALID","INVALID",lineno);
+						return setTokenInfo("Lexical error","Length exceeded",lineno);
 					}
 					// buff[i] = '\0';
 					// --currBufferIndex;
@@ -368,10 +361,10 @@ tokenInfo * getNextToken(FILE *fp) {
 							ch = getNextCharacter(fp);
 						}
 						if(isdigit(ch)){
-							return setTokenInfo("INVALID","INVALID", lineno);
+							return setTokenInfo("Lexical error","Length exceeded", lineno);
 						}
 						--currBufferIndex;
-						return setTokenInfo("INVALID","INVALID", lineno);
+						return setTokenInfo("Lexical error","Length exceeded", lineno);
 					}
 		case '0':
 		case '1':
@@ -406,20 +399,27 @@ tokenInfo * getNextToken(FILE *fp) {
 							return setTokenInfo("RNUM",buff,lineno);
 						}
 						--currBufferIndex;
-						return setTokenInfo("INVALID","INVALID",lineno);
+						buff[i++] = ch;
+						buff[i] = '\0';
+						sprintf(tbuff,"UP %s", buff);
+						return setTokenInfo("Lexical error",tbuff,lineno);
 					}
 
 					buff[i] = '\0';
 					--currBufferIndex;
 					return setTokenInfo("NUM2",buff,lineno);
 
-		case '.':	
+		case '.':	i = 0;
+					tbuff[i++] = '.';
 					ch = getNextCharacter(fp);
 					if( ch == 'n'){
+						tbuff[i++] = 'n';
 						ch = getNextCharacter(fp);
 						if(ch == 'o'){
+							tbuff[i++] = 'o';
 							ch = getNextCharacter(fp);
 							if (ch == 't'){
+								tbuff[i++] = 't';
 								ch = getNextCharacter(fp);
 								if (ch == '.')
 									return setTokenInfo("NOT",".not.",lineno);
@@ -427,10 +427,13 @@ tokenInfo * getNextToken(FILE *fp) {
 						}
 					}
 					else if( ch == 'a'){
+						tbuff[i++] = 'a';
 						ch = getNextCharacter(fp);
 						if(ch == 'n'){
+							tbuff[i++] = 'n';
 							ch = getNextCharacter(fp);
 							if (ch == 'd'){
+								tbuff[i++] = 'd';
 								ch = getNextCharacter(fp);
 								if (ch == '.')
 									return setTokenInfo("AND",".and.",lineno);
@@ -438,15 +441,20 @@ tokenInfo * getNextToken(FILE *fp) {
 						}
 					}
 					else if( ch == 'o'){
+						tbuff[i++] = 'o';
 						ch = getNextCharacter(fp);
 						if(ch == 'r'){
+							tbuff[i++] = 'r';
 							ch = getNextCharacter(fp);
 							if (ch == '.')
 								return setTokenInfo("OR",".or.",lineno);
 						}
 					}
+					tbuff[i++] = ch;
+					tbuff[i] = '\0';
+					sprintf(buff,"UP %s", tbuff);
 					--currBufferIndex;
-					return setTokenInfo("INVALID","INVALID",lineno);
+					return setTokenInfo("Lexical error",buff,lineno);
 
 		case '#':	ch = getNextCharacter(fp);
 					while( ch != '\n' && ch != '\0'){
@@ -455,7 +463,9 @@ tokenInfo * getNextToken(FILE *fp) {
 					--currBufferIndex;
 					return setTokenInfo("COMMENT","COMMENT",lineno);
 					
-		default:	printf("%c\n",ch );
-					return setTokenInfo("INVALID","INVALID",lineno);
+		default:	
+					// printf("%c\n",ch );
+					sprintf(buff,"Unknown Symbol %c",ch);
+					return setTokenInfo("Lexical error", buff,lineno);
 	};
 };

@@ -1,5 +1,6 @@
 _main[     ]
-	string str1, str2;
-
+	abcdeabc%
+	123.5a
+	abcdeabcdeabcdeabcdea
 end
 

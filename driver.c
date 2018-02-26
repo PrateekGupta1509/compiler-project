@@ -15,20 +15,11 @@ int main(int argc, char ** argv){
 	printf("Enter your choice: ");
 	scanf("%d", &choice);
 	FILE *fp = NULL;
+	FILE *outfp = NULL;
 	tokenInfo *ti = NULL;
 
 	nonTerminalList * ntlHead = NULL;
 	parseTree * ptHead = NULL;
-// 	// printGrammar(ntl);
-// 	computeFirstSet(ntl);
-// 	// printFirstSet(ntl);
-// 	// computeFollowSet(ntl);
-// 	readFollowSet("follow.txt",ntl);
-// 	// printFollowSet(ntl);
-// 	generateParseTable(ntl);
-// 	// printParseTable();
-// 	generateParseTree(charv[1]);
-// 	printParseTree(ptHead);
 
 	switch(choice){
 		case 1:
@@ -59,13 +50,9 @@ int main(int argc, char ** argv){
 				generateParseTable(ntlHead);
 				ptHead = initParseTree(ptHead);
 				generateParseTree(ptHead, argv[1]);
-				// printf("%s\n", ptHead->parent->value);
-				// printf("%s\n", ptHead->value);
-				// printf("%s\n", ptHead->child->value);
-				// printf("%s\n", ptHead->child->sibling->value);
-				// printf("%s\n", ptHead->child->sibling->sibling->value);
-				// printf("%s\n", ptHead->child->sibling->sibling->sibling->value);
-				printParseTree(ptHead);
+				outfp = fopen(argv[2],"w");
+				printParseTree(outfp,ptHead);
+				fclose(outfp);
 				break;
 		default:
 				printf("Invalid Choice!\n");

@@ -47,4 +47,4 @@ parseTree* createPTNode(char *value, parseTree * parent);
 
 
 void generateParseTree(parseTree * ptHead, char * inFileName);
-void printParseTree(parseTree * pt);
+void printParseTree(FILE *fp, parseTree * pt);

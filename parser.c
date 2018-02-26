@@ -707,7 +707,18 @@ void generateParseTree(parseTree * ptHead, char * inFileName){
 
 	tokenInfo *ti = NULL;
 	ti = getNextToken(infp);
-	while(strcmp(ti->token,"COMMENT") == 0){
+	while(strcmp(ti->token,"COMMENT") == 0 || strcmp(ti->token,"Lexical error")){
+		if((ti->token)[0] == 'L'){
+			if((ti->value)[0] == 'L'){
+				printf("Line no.:%d %s: %s\n",ti->lineno, ti->token, "Identifier is longer than the prescribed length");
+			}
+			else if((ti->token)[1] == 'P'){
+				printf("Line no.:%d %s: Unknown Pattern %s\n",ti->lineno, ti->token, ((ti->value)+3));
+			}
+			else{
+				printf("Line no.:%d %s: %s\n",ti->lineno, ti->token, ti->value);
+			}
+		}
 		ti = getNextToken(infp);
 	}
 	// printf("%s\n",ti->value );
@@ -742,7 +753,18 @@ void generateParseTree(parseTree * ptHead, char * inFileName){
 			// printf("yo----\n");
 			psHead = psPop(psHead);
 			ti = getNextToken(infp);
-			while(strcmp(ti->token,"COMMENT") == 0){
+			while(strcmp(ti->token,"COMMENT") == 0 || strcmp(ti->token,"Lexical error") == 0){
+				if((ti->token)[0] == 'L'){
+					if((ti->value)[0] == 'L'){
+						printf("Line no.:%d %s: %s\n",ti->lineno, ti->token, "Identifier is longer than the prescribed length");
+					}
+					else if((ti->token)[1] == 'P'){
+						printf("Line no.:%d %s: Unknown Pattern %s\n",ti->lineno, ti->token, ((ti->value)+3));
+					}
+					else{
+						printf("Line no.:%d %s: %s\n",ti->lineno, ti->token, ti->value);
+					}
+				}
 				ti = getNextToken(infp);
 			};
 		}
@@ -813,40 +835,38 @@ void printStack(parseStack * psh){
 	printf("\n");
 }
 
-void printParseTree(parseTree * pt){
+void printParseTree(FILE *fp, parseTree * pt){
 	if(pt != NULL){
 		char isLeaf[4] = "no";
 		if(pt->child != NULL){
-			printParseTree(pt->child);
+			printParseTree(fp,pt->child);
 		}
 		else{
 			strcpy(isLeaf,"yes");
 		}
-		//printDetails
 
+		//printDetails
 		if(pt->ti != NULL){
 			if(strcmp(pt->ti->token,"RNUM") == 0 || strcmp(pt->ti->token,"NUM") == 0){
-				// printf(" ");
-				printf("%s %d %s %s %s %s %s\n", pt->ti->value, pt->ti->lineno, pt->ti->token, pt->ti->value, pt->parent->value, isLeaf, pt->value);
+				fprintf(fp,"%s %d %s %s %s %s %s\n", pt->ti->value, pt->ti->lineno, pt->ti->token, pt->ti->value, pt->parent->value, isLeaf, pt->value);
 			}
 			else{
-				// printf("---%s---",pt->parent->value);
-				printf("%s %d %s %s %s %s %s\n", pt->ti->value, pt->ti->lineno, pt->ti->token, "----", pt->parent->value, isLeaf, pt->value);
+				fprintf(fp,"%s %d %s %s %s %s %s\n", pt->ti->value, pt->ti->lineno, pt->ti->token, "----", pt->parent->value, isLeaf, pt->value);
 			}
 		}
 		else{
 			if(strcmp(pt->value, "EPSILON")==0){
-				printf("%s %s %s %s %s %s %s\n", "----","----", pt->value, "----", pt->parent->value, isLeaf, pt->value );
+				fprintf(fp,"%s %s %s %s %s %s %s\n", "----","----", pt->value, "----", pt->parent->value, isLeaf, pt->value );
 			}
 			else{
-				printf("%s %s %s %s %s %s %s\n", "----", "----", "----","----", pt->parent->value, isLeaf, pt->value);
+				fprintf(fp,"%s %s %s %s %s %s %s\n", "----", "----", "----","----", pt->parent->value, isLeaf, pt->value);
 			}
-			// printf("%s \n",pt->value);
 		}
+
 		if(pt->child != NULL){
 			parseTree *tmp = pt->child->sibling; 
 			while(tmp != NULL){
-				printParseTree(tmp);
+				printParseTree(fp,tmp);
 				tmp = tmp->sibling;
 			}
 		}
