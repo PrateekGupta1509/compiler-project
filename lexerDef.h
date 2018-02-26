@@ -9,7 +9,13 @@
 typedef struct {
 	char token[21];
 	char value[25];
-	int lineno;
+	unsigned long long lineno;
 } tokenInfo;
+
+typedef struct keywordHT {
+	char token[10];
+	char value[10];
+	struct keywordHT * next;
+} keywordHT;
 
 #endif

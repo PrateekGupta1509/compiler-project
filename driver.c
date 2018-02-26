@@ -21,6 +21,8 @@ int main(int argc, char ** argv){
 	nonTerminalList * ntlHead = NULL;
 	parseTree * ptHead = NULL;
 
+	initKeywordMap();
+
 	switch(choice){
 		case 1:
 				printf("%s\n", argv[1]);
@@ -30,7 +32,20 @@ int main(int argc, char ** argv){
 				fp = fopen(argv[1], "r");
 				ti = getNextToken(fp);
 				while( strcmp(ti->token,"EOF")  != 0){
-					readTokenInfo(ti);
+					if(strcmp(ti->token, "Lexical error") == 0){
+						if((ti->value)[0] == 'L'){
+							printf("line no.:%d %s: %s\n",ti->lineno, ti->token, "Identifier is longer than the prescribed length");
+						}
+						else if((ti->token)[1] == 'P'){
+							printf("line no.:%d %s: Unknown Pattern %s\n",ti->lineno, ti->token, ((ti->value)+3));
+						}
+						else{
+							printf("line no.:%d %s: %s\n",ti->lineno, ti->token, ti->value);
+						}
+					}
+					else{
+						readTokenInfo(ti);
+					}
 					ti = getNextToken(fp);
 				}
 				fclose(fp);
@@ -41,7 +56,7 @@ int main(int argc, char ** argv){
 				readFollowSet("follow.txt",ntlHead);
 				generateParseTable(ntlHead);
 				ptHead = initParseTree(ptHead);
-				generateParseTree(ptHead, argv[1]);
+				generateParseTree(ptHead, ntlHead, argv[1]);
 				break;
 		case 4:	
 				ntlHead = readGrammar("grammar.txt");
@@ -49,7 +64,7 @@ int main(int argc, char ** argv){
 				readFollowSet("follow.txt",ntlHead);
 				generateParseTable(ntlHead);
 				ptHead = initParseTree(ptHead);
-				generateParseTree(ptHead, argv[1]);
+				generateParseTree(ptHead, ntlHead, argv[1]);
 				outfp = fopen(argv[2],"w");
 				printParseTree(outfp,ptHead);
 				fclose(outfp);

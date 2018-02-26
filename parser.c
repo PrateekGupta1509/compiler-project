@@ -700,7 +700,7 @@ parseTree *initParseTree(parseTree * ptHead){
 }
 
 
-void generateParseTree(parseTree * ptHead, char * inFileName){
+void generateParseTree(parseTree * ptHead, nonTerminalList * ntlHead, char * inFileName){
 	psHead = initStack(psHead);
 	// ptHead = initParseTree(ptHead);
 	FILE *infp = fopen(inFileName, "r");
@@ -710,13 +710,13 @@ void generateParseTree(parseTree * ptHead, char * inFileName){
 	while(strcmp(ti->token,"COMMENT") == 0 || strcmp(ti->token,"Lexical error")){
 		if((ti->token)[0] == 'L'){
 			if((ti->value)[0] == 'L'){
-				printf("Line no.:%d %s: %s\n",ti->lineno, ti->token, "Identifier is longer than the prescribed length");
+				printf("line no.:%d %s: %s\n",ti->lineno, ti->token, "Identifier is longer than the prescribed length");
 			}
 			else if((ti->token)[1] == 'P'){
-				printf("Line no.:%d %s: Unknown Pattern %s\n",ti->lineno, ti->token, ((ti->value)+3));
+				printf("line no.:%d %s: Unknown Pattern %s\n",ti->lineno, ti->token, ((ti->value)+3));
 			}
 			else{
-				printf("Line no.:%d %s: %s\n",ti->lineno, ti->token, ti->value);
+				printf("line no.:%d %s: %s\n",ti->lineno, ti->token, ti->value);
 			}
 		}
 		ti = getNextToken(infp);
@@ -726,6 +726,12 @@ void generateParseTree(parseTree * ptHead, char * inFileName){
 	parseTree *cpt = ptHead;
 	parseTree *ptn = NULL;
 	int errorFlag = 0;
+
+	nonTerminalList * ntl = NULL;
+	ruleList * rl = NULL;
+	setNode * sn = NULL; 
+	setNode * en = NULL;
+
 	while( strcmp(psHead->value,"EOF")  != 0){
 		i = getNTLIndex(psHead->value);
 		j = getTokenIndex(ti->token);
@@ -756,17 +762,20 @@ void generateParseTree(parseTree * ptHead, char * inFileName){
 			while(strcmp(ti->token,"COMMENT") == 0 || strcmp(ti->token,"Lexical error") == 0){
 				if((ti->token)[0] == 'L'){
 					if((ti->value)[0] == 'L'){
-						printf("Line no.:%d %s: %s\n",ti->lineno, ti->token, "Identifier is longer than the prescribed length");
+						printf("line no.:%d %s: %s\n",ti->lineno, ti->token, "Identifier is longer than the prescribed length");
 					}
 					else if((ti->token)[1] == 'P'){
-						printf("Line no.:%d %s: Unknown Pattern %s\n",ti->lineno, ti->token, ((ti->value)+3));
+						printf("line no.:%d %s: Unknown Pattern %s\n",ti->lineno, ti->token, ((ti->value)+3));
 					}
 					else{
-						printf("Line no.:%d %s: %s\n",ti->lineno, ti->token, ti->value);
+						printf("line no.:%d %s: %s\n",ti->lineno, ti->token, ti->value);
 					}
 				}
 				ti = getNextToken(infp);
 			};
+			if(strcmp(ti->token,"EOF") == 0){
+				return;
+			}
 		}
 		else if(getTokenIndex(psHead->value) != -1){
 			printf("ERROR\n");
@@ -774,7 +783,62 @@ void generateParseTree(parseTree * ptHead, char * inFileName){
 			break;
 		}
 		else if(i != -1 && j != -1 && pt[i][j].ruleHead == NULL){
-			printf("ERROR\n");
+			printf("line no.:%llu Syntax error: The token %s for lexeme %s does not match at line %llu. The expected token here is", ti->lineno, ti->token, ti->value);
+			ntl = getNonTerminal(ntlHead, psHead->value);
+			rl = ntl->ruleListHead;
+			while(rl != NULL) {
+				sn = rl->firstHead;
+				while(sn != NULL){
+					if(strcmp(sn->value,"EPSILON") == 0){
+						en = ntl->followHead;
+						while(en!= NULL){
+							printf(" %s",en->value);
+							en = en->next;
+						}
+					}
+					else{
+						printf(" %s",en->value);
+					}
+					sn = sn->next;
+				}
+				rl = rl->next;
+			}
+			printf("\n");
+
+			ti = getNextToken(infp);
+			while(1){
+				while(strcmp(ti->token,"COMMENT") == 0 || strcmp(ti->token,"Lexical error") == 0){
+					if((ti->token)[0] == 'L'){
+						if((ti->value)[0] == 'L'){
+							printf("line no.:%d %s: %s\n",ti->lineno, ti->token, "Identifier is longer than the prescribed length");
+						}
+						else if((ti->token)[1] == 'P'){
+							printf("line no.:%d %s: Unknown Pattern %s\n",ti->lineno, ti->token, ((ti->value)+3));
+						}
+						else{
+							printf("line no.:%d %s: %s\n",ti->lineno, ti->token, ti->value);
+						}
+					}
+					ti = getNextToken(infp);
+				};
+				if(strcmp(ti->token,"EOF") == 0){
+					return;
+				}
+
+				en = ntl->followHead;
+				while(en!=NULL){
+					if(strcmp(en->value, ti->token) == 0){
+						//fix cpt
+
+						break;
+					}
+					en = en->next;
+				}
+				ti = getNextToken(infp);
+			}
+
+
+
 			errorFlag = 1;
 			break;
 		}
@@ -837,12 +901,10 @@ void printStack(parseStack * psh){
 
 void printParseTree(FILE *fp, parseTree * pt){
 	if(pt != NULL){
-		char isLeaf[4] = "no";
+		char isLeaf[4] = "yes";
 		if(pt->child != NULL){
+			strcpy(isLeaf,"no");
 			printParseTree(fp,pt->child);
-		}
-		else{
-			strcpy(isLeaf,"yes");
 		}
 
 		//printDetails

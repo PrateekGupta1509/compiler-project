@@ -11,9 +11,11 @@ int flagBuffer = -1;
 char fBuffer[MAX_BUFFER_SIZE+1];
 char sBuffer[MAX_BUFFER_SIZE+1];
 int currBufferIndex = -1;
-int lineno = 0;
+unsigned long long lineno = 0;
 
-tokenInfo* setTokenInfo(char *token, char* value, int lineno) {
+keywordHT *keywordTable[10];
+
+tokenInfo* setTokenInfo(char *token, char* value, unsigned long long lineno) {
 	tokenInfo *ti = (tokenInfo *) malloc (sizeof(tokenInfo));
 	if(ti == NULL)
 		return NULL;
@@ -26,7 +28,7 @@ tokenInfo* setTokenInfo(char *token, char* value, int lineno) {
 
 void readTokenInfo(tokenInfo *ti) {
 	if(ti != NULL)
-		printf("%s %s %d\n", ti->token, ti->value, ti->lineno);
+		printf("%s %s %llu\n", ti->token, ti->value, ti->lineno);
 }
 
 FILE* getStream(FILE *fp){
@@ -116,31 +118,68 @@ void removeComments(char *testcaseFile) {
 	flagBuffer = -1;
 }
 
-tokenInfo * keywordMap(char* value, int lineno){
-	if(strcmp("end", value) == 0)
-		return setTokenInfo("END",value,lineno);
-	else if(strcmp("int", value) == 0)
-		return setTokenInfo("INT",value,lineno);
-	else if(strcmp("real", value) == 0)
-		return setTokenInfo("REAL",value,lineno);
-	else if(strcmp("string", value) == 0)
-		return setTokenInfo("STRING",value,lineno);
-	else if(strcmp("matrix", value) == 0)
-		return setTokenInfo("MATRIX",value,lineno);
-	else if(strcmp("if", value) == 0)
-		return setTokenInfo("IF",value,lineno);
-	else if(strcmp("else", value) == 0)
-		return setTokenInfo("ELSE",value,lineno);
-	else if(strcmp("endif", value) == 0)
-		return setTokenInfo("ENDIF",value,lineno);
-	else if(strcmp("read", value) == 0)
-		return setTokenInfo("READ",value,lineno);
-	else if(strcmp("print", value) == 0)
-		return setTokenInfo("PRINT",value,lineno);
-	else if(strcmp("function", value) == 0)
-		return setTokenInfo("FUNCTION",value,lineno);
-	else
-		return setTokenInfo("ID",value,lineno); 
+int hashKeyword(char *value) {
+	int hash = 0;
+	int i = 0, a;
+    while(value[i] != '\0'){  
+        int a = value[i] - '5';
+        hash = (hash * 17) + a;
+        i++; 
+    } 
+    return hash % 10;
+}
+
+void addKeyword(char *value, char *token) {
+	keywordHT * kht = (keywordHT *) malloc (sizeof(keywordHT));
+
+	strcpy(kht->token,token);
+	strcpy(kht->value,value);
+	kht->next = NULL;
+
+	int i = hashKeyword(value);
+	// printf("%s %d\n",value,i );
+	keywordHT *tmp = NULL;
+	if(keywordTable[i] == NULL){
+		keywordTable[i] = kht;
+	}
+	else{
+		tmp = keywordTable[i];
+		while(tmp->next != NULL){
+			tmp = tmp->next;
+		}
+		tmp->next = kht;
+	}
+}
+
+void initKeywordMap(){
+	int i; 
+	for(i = 0; i<10; i++){
+		keywordTable[i] = NULL;
+	}
+	addKeyword("end","END");
+	addKeyword("int","INT");
+	addKeyword("real","REAL");
+	addKeyword("string","STRING");
+	addKeyword("matrix","MATRIX");
+	addKeyword("if","IF");
+	addKeyword("else","ELSE");
+	addKeyword("endif","ENDIF");
+	addKeyword("read","READ");
+	addKeyword("print","PRINT");
+	addKeyword("function","FUNCTION");
+}
+
+tokenInfo * keywordMap(char* value, unsigned long long lineno){
+	int hash = -1;
+	hash = hashKeyword(value);
+	keywordHT * tmp = keywordTable[hash];
+	while(tmp != NULL){
+		if(strcmp(tmp->value, value) == 0){
+			return setTokenInfo(tmp->token, tmp->value, lineno);
+		}
+		tmp = tmp->next;
+	}
+	return setTokenInfo("ID",value,lineno); 
 }
 
 tokenInfo * getNextToken(FILE *fp) {

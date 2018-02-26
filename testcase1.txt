@@ -1,6 +1,3 @@
-_main[     ]
-	abcdeabc%
-	123.5a
-	abcdeabcdeabcdeabcdea
-end
+if
+else
 
