@@ -29,7 +29,7 @@ tokenInfo* setTokenInfo(char *token, char* value, unsigned long long lineno) {
 
 void readTokenInfo(tokenInfo *ti) {
 	if(ti != NULL)
-		printf("%s %s %llu\n", ti->token, ti->value, ti->lineno);
+		printf("%-25s  %-25s  %-10llu\n", ti->token, ti->value, ti->lineno);
 }
 
 FILE* getStream(FILE *fp){
